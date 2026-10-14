@@ -1,9 +1,31 @@
-
 class Log:
     def __init__(self):
-        self.sent_messages = {"MessageID": [], "MessageType": [], "MessageTimeLeft" :[], "MessageDelay": [], "MessageRoute" :[]}
-        self.received_messages = {"MessageID": [], "MessageType": [], "MessageTimeLeft" :[],"MessageTimeReceived":[], "MessageDelay": [], "MessageRoute" :[],"MessageTarget" : [] }
-        self.dummy_messages = {"DroppingNode":[],"DummyID": [], "DummyType": [], "DummyTimeLeft" :[], "DummyDelay": [], "DummyRoute" :[], "DummyPr":[]}
+        self.sent_messages = {
+            "MessageID": [],
+            "MessageType": [],
+            "MessageTimeLeft": [],
+            "MessageDelay": [],
+            "MessageRoute": [],
+        }
+        self.received_messages = {
+            "MessageID": [],
+            "MessageType": [],
+            "MessageTimeLeft": [],
+            "MessageTimeReceived": [],
+            "MessageDelay": [],
+            "MessageRoute": [],
+            "MessageTarget": [],
+        }
+        self.dummy_messages = {
+            "DroppingNode": [],
+            "DummyID": [],
+            "DummyType": [],
+            "DummyTimeLeft": [],
+            "DummyDelay": [],
+            "DummyRoute": [],
+            "DummyPr": [],
+        }
+
     def dummies_dropped_end_link(self, dummy, dropping_node):
         self.dummy_messages["DroppingNode"].append(dropping_node)
         self.dummy_messages["DummyID"].append(dummy.id)
@@ -24,7 +46,7 @@ class Log:
         self.received_messages["MessageID"].append(msg.id)
         self.received_messages["MessageType"].append(msg.type)
         self.received_messages["MessageTimeLeft"].append(msg.time_left)
-        self.received_messages["MessageTimeReceived"].append(msg.timeReceived)
+        self.received_messages["MessageTimeReceived"].append(msg.time_received)
         self.received_messages["MessageDelay"].append(msg.delays)
         self.received_messages["MessageRoute"].append(msg.route)
         self.received_messages["MessageTarget"].append(msg.pr_target)
