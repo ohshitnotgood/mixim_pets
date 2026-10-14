@@ -1,5 +1,5 @@
 from random import choice, sample
-from Message import Message
+from Message import Message, MessageType
 from numpy.random import exponential
 import numpy as np
 import random
@@ -40,11 +40,11 @@ class Client:
                 self.all_mixes += self.network_dict[layer]
         elif self.simulation.topology == "XRD":
             self.set_chains = self.network_dict
-        self.env.process(self.send_message("Real", self.rate_client))
+        self.env.process(self.send_message("real", self.rate_client))
         if self.client_dummies:
-            self.env.process(self.send_message("ClientDummy", self.rate_client_dummies))
+            self.env.process(self.send_message("client_dummy", self.rate_client_dummies))
 
-    def create_message(self, message_type, rate_client):
+    def create_message(self, message_type: MessageType, rate_client):
         np.random.seed()
         delay_client = exponential(rate_client)
         route = [self]
@@ -138,10 +138,10 @@ class Client:
             print(
                 f"Target message arrived at destination Client at time {self.env.now}"
             )
-        if message.type == "Real" or message.type == "ClientDummy":
+        if message.type == "real" or message.type == "client_dummy":
             message.route[0].receive_ack(message)
 
-    def send_message(self, message_type, rate_client):
+    def send_message(self, message_type: MessageType, rate_client):
         while True:
             message, sending_time = self.create_message(message_type, rate_client)
             yield self.env.timeout(sending_time)
