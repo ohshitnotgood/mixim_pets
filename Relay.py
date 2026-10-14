@@ -26,7 +26,7 @@ class Attacker:
             self.var
             and self.simulation.start_attack
             and msg.next_hop_index == 1
-            and (msg.type == "Real" or msg.type == "ClientDummy")
+            and (msg.type == "real" or msg.type == "client_dummy")
         ):
             if self.n_target_chosen_attacker < self.n_targets:
                 for i in range(0, self.n_targets):

@@ -1,11 +1,12 @@
-from Mix import Mix
+from Message import Message
+from random import choice, sample
 from numpy.random import exponential
 import random
 
 global id_dummies
 
 
-class PoissonMix(Mix):
+class PoissonMix:
     def __init__(
         self,
         mix_id,
@@ -18,7 +19,14 @@ class PoissonMix(Mix):
         corrupt,
         pr_mix,
     ):
-        super().__init__(mix_id, simulation, position, n_targets, corrupt)
+        """Initialize a mix with exponential delays and optional dummy traffic."""
+        self.n_targets = n_targets
+        self.id = mix_id
+        self.env = simulation.env
+        self.simulation = simulation
+        self.layer = position
+        self.corrupt = corrupt
+        self.p_mix = [0.0 for _ in range(n_targets)]
         self.pool = []  # Pool
         self.neighbors = set()
         self.link_based_dummies = link_based_dummies
@@ -34,7 +42,7 @@ class PoissonMix(Mix):
         ):
             self.env.process(self.send_dummies())
 
-    def receive_message(self, msg):
+    def receive_message(self, msg: Message):
         if (
             not self.simulation.start_attack
         ):  # if a mix reaches a poolsize of 5 percent higher than the average,
@@ -65,10 +73,10 @@ class PoissonMix(Mix):
         msg.next_hop_index += 1
         if msg.route[msg.next_hop_index] == None:
             msg.route[msg.next_hop_index] = random.choice(self.neighbors)
-        if msg.type == "Real":
+        if msg.type == "real":
             self.pool.append(msg)
             self.env.process(self.send_msg(msg))
-        elif msg.type == "Dummy":
+        elif msg.type == "dummy":
             if self.link_based_dummies:
                 self.drop_dummies(msg)
             elif self.multiple_hop_dummies:
@@ -104,3 +112,48 @@ class PoissonMix(Mix):
             yield self.env.timeout(exponential(self.rate_mix_dummies))
             dummy_id += 1
             self.env.process(self.send_msg(new_message))
+
+    def create_dummies(self, dummy_id):
+        """
+        Comment author: Praanto Samadder
+
+        Create a dummy message originating at this mix without sending it.
+
+        Args:
+            dummy_id: Sequence number used with this mix's ID to form the
+                message identifier ``d_<mix_id>_<dummy_id>``.
+
+        Returns:
+            Message: A non-target message with type ``"dummy"``, this mix as
+            its sender, and the generated route, delays, and probabilities.
+        """
+        network_dict = self.simulation.network.network_dict
+        route = [None]
+        delays = [0]
+        for layer in range(1, self.simulation.n_layers + 1):
+            if self.layer > layer:
+                route.append(None)
+                delays.append(0)
+            elif self.layer == layer:
+                route.append(self)
+                delays.append(exponential(self.simulation.mu))
+            else:
+                route.append(choice(network_dict[layer]))
+                delays.append(exponential(self.simulation.mu))
+        delays += [0]
+        newstop = sample(self.simulation.clients_set, k=1)[0]
+        route += [newstop]
+        pr_target = []
+        for _ in range(0, self.n_targets):
+            pr_target.append(float(0.0))
+        new_dummy = Message(dummy_id, "dummy", self, route, delays, pr_target, False)
+
+        new_dummy.next_hop_index = self.layer + 1
+        new_dummy.id = f"d_{self.id}_{dummy_id}"
+        return new_dummy
+
+    def __str__(self):
+        return f"( id: {self.id}, corrupt: {self.corrupt} )"
+
+    def __repr__(self):
+        return self.__str__()
