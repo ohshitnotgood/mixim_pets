@@ -10,12 +10,14 @@ class Mix:
         self.id = id
         self.env = simulation.env
         self.simulation = simulation
-        self.layer = position  # 1, 2, 3, ... this has no meaning in a freeroute simulation!
+        self.layer = (
+            position  # 1, 2, 3, ... this has no meaning in a freeroute simulation!
+        )
         self.corrupt = corrupt  # corrupt mix or not
-        self.Pmix = []# probability this mix contains the target message
+        self.p_mix = []  # probability this mix contains the target message
 
         for i in range(0, self.n_targets):
-            self.Pmix.append(float(0.0))
+            self.p_mix.append(float(0.0))
 
     def create_dummies(self, dummy_id):
         network_dict = self.simulation.network.network_dict
@@ -32,20 +34,19 @@ class Mix:
                 route.append(choice(network_dict[layer]))
                 delays.append(exponential(self.simulation.mu))
         delays += [0]
-        newstop = sample(self.simulation.clientsSet, k=1)[0]
+        newstop = sample(self.simulation.clients_set, k=1)[0]
         route += [newstop]
         pr_target = []
         for j in range(0, self.n_targets):
             pr_target.append(float(0.0))
-        new_dummy = Message(dummy_id, 'Dummy', self, route, delays, pr_target, False)
+        new_dummy = Message(dummy_id, "Dummy", self, route, delays, pr_target, False)
 
         new_dummy.next_hop_index = self.layer + 1
-        new_dummy.id = f'd_{self.id}_{dummy_id}'
+        new_dummy.id = f"d_{self.id}_{dummy_id}"
         return new_dummy
 
     def __str__(self):
-        return f'( id: {self.id}, corrupt: {self.corrupt} )'
+        return f"( id: {self.id}, corrupt: {self.corrupt} )"
 
     def __repr__(self):
         return self.__str__()
-

@@ -1,12 +1,8 @@
-
-
-def Weights (Number_layer, Number_Mix_Per_Layer):
+def generate_weights(number_layer, number_mix_per_layer):
     probability = []
-    for i in range(Number_layer):
-        probabTem = []
-        for j in range(Number_Mix_Per_Layer):
-            probabTem.append((1) / (Number_Mix_Per_Layer))
-        probability.append(probabTem)
+    for i in range(number_layer):
+        probab_tem = []
+        for j in range(number_mix_per_layer):
+            probab_tem.append((1) / (number_mix_per_layer))
+        probability.append(probab_tem)
     return probability
-
-
